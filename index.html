@@ -1,0 +1,105 @@
+<html>
+
+<head>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no"
+  >
+</head>
+
+<body>
+  <button
+    id="init"
+    onclick="init()"
+  >Request Access</button>
+
+  <script type="text/javascript">
+    async function init() {
+      await getOrientation();
+      await getUserMedia();
+    }
+
+    async function getOrientation() {
+      if (!window.DeviceOrientationEvent || !window.DeviceOrientationEvent.requestPermission) {
+        return alert("Your current device does not have access to the DeviceOrientation event");
+      }
+
+      let permission = await window.DeviceOrientationEvent.requestPermission();
+      if (permission !== "granted") {
+        return alert("You must grant access to the device's sensor for this demo");
+      }
+    }
+
+    async function getUserMedia() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return alert("Your current device does not have access to the getUserMedia event");
+      }
+
+      let stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "environment"
+        }
+      });
+      let video = document.createElement("video");
+      video.playsInline = true;
+      video.srcObject = stream;
+      video.autoplay = true;
+      document.body.appendChild(video);
+    }
+
+    window.addEventListener("deviceorientation", function (e) {
+      let requestBtn = document.querySelector("#get-orientation");
+      if (requestBtn) { requestBtn.remove(); }
+
+      document.getElementById('beta').innerHTML = e.beta.toFixed(1) + "°";
+      document.getElementById('plus').style.transform = `rotate(${e.gamma > 1 ? e.beta : -e.beta}deg)`;
+    });
+  </script>
+
+  <style type="text/css">
+    #beta {
+      position: absolute;
+      z-index: 2;
+      color: white;
+      font-family: monospace;
+    }
+
+    video {
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      /* transform: scaleX(100%); */
+    }
+
+    #plus {
+      position: absolute;
+      z-index: 2;
+      top: calc(50% - 19.5vw);
+      left: calc(50% - 0.5vw);
+      width: 1vw;
+      height: 40vw;
+      background-color: white;
+    }
+
+    #plus-inside {
+      position: absolute;
+      width: 40vw;
+      height: 1vw;
+      margin-left: -19.5vw;
+      margin-top: 19.5vw;
+      background-color: white;
+    }
+  </style>
+
+  <div id="beta">-</div>
+
+  <div id="plus">
+    <div id="plus-inside"></div>
+  </div>
+
+</body>
+
+</html>
